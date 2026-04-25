@@ -14,9 +14,33 @@ jobs:
       image: nexgang/ubuntu:latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - name: Install packaging dependencies
+        run: |
+          apt-get update
+          apt-get install -y git python3 cpio gzip zip curl ca-certificates
       - name: Nexus Kernel Lmi
         run: bash build.sh null lmi null
         env:
            token: ${{ secrets.TOKEN }}
            chat_id: ${{ secrets.CHAT_ID }}
+      - name: Package CI artifacts
+        run: bash scripts/ci/package_artifacts.sh lmi
+        env:
+          BOOT_HEADER_VERSION: 2
+          BOOT_PAGESIZE: 4096
+          BOOT_BASE: 0x00000000
+          BOOT_KERNEL_OFFSET: 0x00008000
+          BOOT_RAMDISK_OFFSET: 0x01000000
+          BOOT_TAGS_OFFSET: 0x00000100
+          BOOT_DTB_OFFSET: 0x01f00000
+          BOOT_CMDLINE: console=ttyMSM0,115200n8 androidboot.hardware=qcom
+          BOOT_OS_VERSION: 12.0.0
+          BOOT_OS_PATCH_LEVEL: 2024-01
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: lmi-kernel-artifacts
+          path: artifacts/lmi
+          if-no-files-found: error
+          retention-days: 7
