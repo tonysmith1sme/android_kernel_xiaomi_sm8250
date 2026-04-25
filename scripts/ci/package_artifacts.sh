@@ -21,9 +21,10 @@ ARTIFACT_DIR="${ROOT_DIR}/artifacts/${DEVICE}"
 RAW_DIR="${ARTIFACT_DIR}/raw"
 ANYKERNEL_DIR="${ROOT_DIR}/AnyKernel3-${DEVICE}"
 MKBOOTIMG_DIR="${ROOT_DIR}/.cache/mkbootimg"
+MKBOOTIMG_GKI_DIR="${MKBOOTIMG_DIR}/gki"
 RAMDISK_DIR="${ARTIFACT_DIR}/ramdisk"
 
-mkdir -p "${RAW_DIR}" "${MKBOOTIMG_DIR}" "${RAMDISK_DIR}"
+mkdir -p "${RAW_DIR}" "${MKBOOTIMG_DIR}" "${MKBOOTIMG_GKI_DIR}" "${RAMDISK_DIR}"
 
 if [[ -f "${OUT_BOOT_DIR}/Image.gz" ]]; then
 	KERNEL_IMAGE="${OUT_BOOT_DIR}/Image.gz"
@@ -70,7 +71,13 @@ if [[ ! -f "${MKBOOTIMG_DIR}/mkbootimg.py" ]]; then
 	chmod +x "${MKBOOTIMG_DIR}/mkbootimg.py"
 fi
 
-python3 "${MKBOOTIMG_DIR}/mkbootimg.py" \
+if [[ ! -f "${MKBOOTIMG_GKI_DIR}/generate_gki_certificate.py" ]]; then
+	curl -fsSL "https://android.googlesource.com/platform/system/tools/mkbootimg/+/refs/heads/main/gki/generate_gki_certificate.py?format=TEXT" \
+		| base64 --decode > "${MKBOOTIMG_GKI_DIR}/generate_gki_certificate.py"
+	chmod +x "${MKBOOTIMG_GKI_DIR}/generate_gki_certificate.py"
+fi
+
+PYTHONPATH="${MKBOOTIMG_DIR}${PYTHONPATH:+:${PYTHONPATH}}" python3 "${MKBOOTIMG_DIR}/mkbootimg.py" \
 	--kernel "${KERNEL_IMAGE}" \
 	--ramdisk "${ARTIFACT_DIR}/ramdisk.cpio.gz" \
 	--dtb "${OUT_BOOT_DIR}/dtb" \
