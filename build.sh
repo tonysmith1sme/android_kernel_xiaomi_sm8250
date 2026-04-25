@@ -280,13 +280,13 @@ START=$(date +"%s")
 # Zipping
 function move() {
 	# Copy Files To AnyKernel3 Zip
-	mv $IMAGE AnyKernel3
-    mv $DTBO AnyKernel3
-    mv $DTB AnyKernel3
+	cp $IMAGE AnyKernel3
+    cp $DTBO AnyKernel3
+    cp $DTB AnyKernel3
 }
 
 function move_ksu() {
-	mv $IMAGE AnyKernel3/ksu/
+	cp $IMAGE AnyKernel3/ksu/
 }
 
 function setup_sukisu_ultra() {
