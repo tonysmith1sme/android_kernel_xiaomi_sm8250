@@ -289,6 +289,10 @@ function move_ksu() {
 	mv $IMAGE AnyKernel3/ksu/
 }
 
+function setup_sukisu_ultra() {
+	curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s main
+}
+
 function zipping() {
 # Zipping and Push Kernel
 	cd AnyKernel3 || exit 1
@@ -305,8 +309,8 @@ compile
 END=$(date +"%s")
 DIFF=$(($END - $START))
 move
-# KernelSU
-echo "CONFIG_KSU=y" >> $(pwd)/arch/arm64/configs/$DEFCONFIG
+# SukiSU-Ultra
+setup_sukisu_ultra
 compile
 move_ksu
 zipping
